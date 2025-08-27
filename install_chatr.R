@@ -6,7 +6,38 @@ install_chatr <- function() {
   cat("🔧 ChatR Proper Package Installation\n")
   cat("====================================\n\n")
   
-  path <- "/Users/lihanxia/Documents/chatR-GSOC"
+  # Try to find ChatR project directory
+  path <- getwd()  # Start with current directory
+  
+  # Look for ChatR project indicators  
+  possible_paths <- c(
+    ".",  # Current directory
+    "..",  # Parent directory
+    "~/chatR-GSOC",  # User's home
+    "~/Documents/chatR-GSOC",  # Common location
+    file.path(getwd(), "chatR-GSOC"),  # Subdirectory
+    file.path(dirname(getwd()), "chatR-GSOC")  # Parent's subdirectory
+  )
+  
+  path <- NULL
+  for (p in possible_paths) {
+    expanded_path <- path.expand(p)
+    if (file.exists(file.path(expanded_path, "r_package", "DESCRIPTION"))) {
+      path <- expanded_path
+      break
+    }
+  }
+  
+  if (is.null(path)) {
+    cat("❌ Cannot find ChatR project directory.\n")
+    cat("💡 Please ensure you have cloned the repository and are running from the right location:\n")
+    cat("   git clone https://github.com/freedom12321/chatR-GSOC.git\n")
+    cat("   cd chatR-GSOC\n")
+    cat("   R -e \"source('install_chatr.R'); install_chatr()\"\n")
+    stop("Installation cannot proceed without the project files.")
+  }
+  
+  cat("   📍 Found ChatR project at:", path, "\n")
   
   # Step 1: Complete cleanup
   cat("1. Complete cleanup...\n")
