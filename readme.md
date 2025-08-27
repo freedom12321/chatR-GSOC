@@ -1,5 +1,8 @@
 # ChatR: An Intelligent, Local Assistant for R Programmers
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![R Package](https://img.shields.io/badge/R%20Package-Available-blue.svg)](#installation)
+[![Python CLI](https://img.shields.io/badge/Python%20CLI-Available-green.svg)](#installation)
 
 ## The Problem
 R users, especially package developers and new contributors, face a common challenge: existing large language models often provide inaccurate or incomplete R code. They struggle with third-party packages, fail to provide precise answers about R contribution workflows, and are often too resource-intensive or proprietary for many users. The result is a frustrating, time-consuming experience that limits learning and collaboration.
@@ -20,23 +23,72 @@ Think of ChatR as your personal, knowledgeable R expert who can search documenta
 
 ## 🚀 Quick Start
 
-### For R Users (Recommended)
+### For R Users (Recommended - Full AI Functionality)
 ```r
-# 1. Install and start ChatR (one-time setup)
+# 1. Install ChatR with full backend (one-time setup)
 source("https://raw.githubusercontent.com/freedom12321/chatR-GSOC/main/install_chatr.R")
 install_chatr()
 
-# 2. Use immediately
+# 2. Use immediately with full AI power
 library(chatr)
-chatr("How do I create a linear regression with diagnostics?")
-chatr_analyze("mtcars")  # Analyze any dataset
-help_explain("lm")       # Get intelligent help for functions
+chatr("How do I create a linear regression with diagnostics?")  # ✅ Full LLM analysis
+chatr_analyze("mtcars")  # ✅ AI-powered dataset analysis
+chatr_code("machine learning model")  # ✅ Smart code generation
+```
+
+### ⚠️ **Important: Full Functionality Requires Backend**
+
+**ChatR has two parts:**
+- **R Package**: Functions like `chatr()`, `chatr_analyze()` (interface)
+- **Python Backend**: LLM + RAG system (the AI brain)
+
+**For FULL AI functionality, you need BOTH:**
+
+#### **Option 1: Complete Installation (Recommended)**
+```r
+# This installs BOTH R package AND Python backend automatically
+source("https://raw.githubusercontent.com/freedom12321/chatR-GSOC/main/install_chatr.R")
+install_chatr()  # ✅ Sets up everything: Python CLI + R package + LLM
+```
+
+#### **Option 2: Manual Backend Setup**
+```bash
+# 1. Install Python backend first
+git clone https://github.com/freedom12321/chatR-GSOC.git
+cd chatR-GSOC
+pip install -e .
+ollama pull llama3.2:3b-instruct
+
+# 2. Start backend server
+chatr serve
+
+# 3. Then install R package
+# R -e "devtools::install('r_package')"
+```
+
+#### **What Happens Without Backend:**
+```r
+# R package only (no backend running):
+library(chatr)
+chatr("help me")  
+# Result: ❌ "ChatR backend not running" + setup instructions
+#         ❌ No AI responses, no code generation, no analysis
+```
+
+#### **What You Get With Complete Setup:**
+```r
+# R package + Backend running:
+library(chatr)
+chatr("help me")  
+# Result: ✅ Full AI analysis with code examples
+#         ✅ Smart suggestions and explanations
+#         ✅ All advanced features work
 ```
 
 ### For CLI Users
 ```bash
 # Install and setup
-git clone https://github.com/your-org/chatR-GSOC.git
+git clone https://github.com/freedom12321/chatR-GSOC.git
 cd chatR-GSOC && pip install -e . && ollama pull llama3.2:3b-instruct
 
 # Use immediately  
