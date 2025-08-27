@@ -23,7 +23,7 @@ Think of ChatR as your personal, knowledgeable R expert who can search documenta
 ### For R Users (Recommended)
 ```r
 # 1. Install and start ChatR (one-time setup)
-source("https://raw.githubusercontent.com/your-org/chatR-GSOC/main/install_chatr.R")
+source("https://raw.githubusercontent.com/freedom12321/chatR-GSOC/main/install_chatr.R")
 install_chatr()
 
 # 2. Use immediately
