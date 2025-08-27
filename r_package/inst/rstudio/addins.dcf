@@ -1,0 +1,19 @@
+Name: ChatR Assistant
+Description: Launch ChatR interactive assistant
+Binding: chatr_addin
+Interactive: true
+
+Name: ChatR Help Current Function
+Description: Get help for function at cursor
+Binding: chatr_help_cursor
+Interactive: false
+
+Name: ChatR Suggest Code
+Description: Get code suggestions for current context
+Binding: chatr_suggest_code
+Interactive: false
+
+Name: ChatR Analyze Selection
+Description: Analyze selected R code
+Binding: chatr_analyze_selection
+Interactive: false

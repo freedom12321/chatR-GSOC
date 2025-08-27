@@ -1,0 +1,28 @@
+Package: chatr
+Type: Package
+Title: An Intelligent, Local Assistant for R Programmers
+Version: 0.1.0
+Author: ChatR Team
+Maintainer: ChatR Team <maintainer@example.com>
+Description: ChatR is a lightweight, open, and reliable AI assistant built 
+    specifically for R users. It runs locally on your machine without needing 
+    a powerful GPU or a proprietary API key. Features include context-aware 
+    retrieval, live R code execution, and educational support.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: false
+Depends: 
+    R (>= 3.5.0)
+Imports:
+    shiny,
+    miniUI,
+    rstudioapi,
+    jsonlite,
+    httr,
+    curl
+Suggests:
+    testthat,
+    knitr,
+    rmarkdown
+RoxygenNote: 7.3.2
+VignetteBuilder: knitr
