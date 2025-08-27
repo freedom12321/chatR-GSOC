@@ -354,9 +354,11 @@ chatr_serve <- function(port = 8000, host = "localhost") {
   tryCatch({
     # Try different ways to find and start ChatR
     chatr_paths <- c(
-      "/Users/lihanxia/Documents/chatR-GSOC/venv/bin/chatr",  # Virtual env path
       Sys.which("chatr"),  # System PATH
-      path.expand("~/Documents/chatR-GSOC/venv/bin/chatr")  # Expanded home path
+      path.expand("~/chatR-GSOC/venv/bin/chatr"),  # User's home directory
+      path.expand("~/Documents/chatR-GSOC/venv/bin/chatr"),  # Common location
+      "/usr/local/bin/chatr",  # System installation
+      paste0(Sys.getenv("HOME"), "/.local/bin/chatr")  # Local user installation
     )
     
     chatr_cmd <- ""
@@ -369,7 +371,7 @@ chatr_serve <- function(port = 8000, host = "localhost") {
     
     if (chatr_cmd == "") {
       message("ChatR command not found. Please ensure:")
-      message("  1. ChatR is installed: pip install -e /Users/lihanxia/Documents/chatR-GSOC")
+      message("  1. ChatR is installed: pip install -e .")
       message("  2. Virtual environment is activated")
       return(FALSE)
     }
@@ -379,8 +381,7 @@ chatr_serve <- function(port = 8000, host = "localhost") {
     # Start ChatR backend in background with proper environment
     if (.Platform$OS.type == "unix") {
       # Unix/Mac - use bash to properly handle background process
-      cmd <- paste0("bash -c 'source /Users/lihanxia/Documents/chatR-GSOC/venv/bin/activate && ", 
-                   chatr_cmd, " serve --port 8000 > /tmp/chatr.log 2>&1 &'")
+      cmd <- paste0("bash -c '", chatr_cmd, " serve --port 8000 > /tmp/chatr.log 2>&1 &'")
       system(cmd, wait = FALSE)
     } else {
       # Windows  
@@ -396,6 +397,7 @@ chatr_serve <- function(port = 8000, host = "localhost") {
     return(FALSE)
   })
 }
+
 
 
 
