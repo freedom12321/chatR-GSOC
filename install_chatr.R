@@ -6,38 +6,78 @@ install_chatr <- function() {
   cat("🔧 ChatR Proper Package Installation\n")
   cat("====================================\n\n")
   
-  # Try to find ChatR project directory
-  path <- getwd()  # Start with current directory
+  # Check if we're being sourced from GitHub (remote) or locally
+  is_remote <- !file.exists("r_package/DESCRIPTION") && !file.exists("./r_package/DESCRIPTION")
   
-  # Look for ChatR project indicators  
-  possible_paths <- c(
-    ".",  # Current directory
-    "..",  # Parent directory
-    "~/chatR-GSOC",  # User's home
-    "~/Documents/chatR-GSOC",  # Common location
-    file.path(getwd(), "chatR-GSOC"),  # Subdirectory
-    file.path(dirname(getwd()), "chatR-GSOC")  # Parent's subdirectory
-  )
-  
-  path <- NULL
-  for (p in possible_paths) {
-    expanded_path <- path.expand(p)
-    if (file.exists(file.path(expanded_path, "r_package", "DESCRIPTION"))) {
-      path <- expanded_path
-      break
+  if (is_remote) {
+    cat("🌐 Remote installation detected - downloading ChatR...\n")
+    
+    # Check if git is available
+    git_available <- Sys.which("git") != ""
+    if (!git_available) {
+      cat("❌ Git is required for installation but not found.\n")
+      cat("💡 Please install git first, then try again.\n")
+      cat("   Or clone manually: git clone https://github.com/freedom12321/chatR-GSOC.git\n")
+      stop("Git not available")
     }
+    
+    # Create temporary directory and clone
+    temp_dir <- tempdir()
+    clone_dir <- file.path(temp_dir, "chatR-GSOC")
+    
+    # Remove existing clone if present
+    if (dir.exists(clone_dir)) {
+      unlink(clone_dir, recursive = TRUE)
+    }
+    
+    cat("📥 Cloning repository (this may take a moment)...\n")
+    
+    # Clone repository
+    clone_cmd <- paste("git clone https://github.com/freedom12321/chatR-GSOC.git", shQuote(clone_dir))
+    clone_result <- system(clone_cmd, intern = FALSE)
+    
+    if (clone_result != 0 || !dir.exists(file.path(clone_dir, "r_package"))) {
+      cat("❌ Failed to download ChatR repository\n")
+      cat("💡 Please try manual installation:\n")
+      cat("   git clone https://github.com/freedom12321/chatR-GSOC.git\n")
+      cat("   cd chatR-GSOC\n")
+      cat("   R -e \"source('install_chatr.R'); install_chatr()\"\n")
+      stop("Remote installation failed")
+    }
+    
+    path <- clone_dir
+    cat("   ✅ Downloaded ChatR to:", path, "\n")
+    
+  } else {
+    cat("💻 Local installation detected\n")
+    
+    # Try to find ChatR project directory locally
+    possible_paths <- c(
+      ".",  # Current directory
+      "..",  # Parent directory
+      "~/chatR-GSOC",  # User's home
+      "~/Documents/chatR-GSOC",  # Common location
+      file.path(getwd(), "chatR-GSOC"),  # Subdirectory
+      file.path(dirname(getwd()), "chatR-GSOC")  # Parent's subdirectory
+    )
+    
+    path <- NULL
+    for (p in possible_paths) {
+      expanded_path <- path.expand(p)
+      if (file.exists(file.path(expanded_path, "r_package", "DESCRIPTION"))) {
+        path <- expanded_path
+        break
+      }
+    }
+    
+    if (is.null(path)) {
+      cat("❌ Cannot find ChatR project directory.\n")
+      cat("💡 Please ensure you are in the chatR-GSOC directory\n")
+      stop("Installation cannot proceed without the project files.")
+    }
+    
+    cat("   📍 Found ChatR project at:", path, "\n")
   }
-  
-  if (is.null(path)) {
-    cat("❌ Cannot find ChatR project directory.\n")
-    cat("💡 Please ensure you have cloned the repository and are running from the right location:\n")
-    cat("   git clone https://github.com/freedom12321/chatR-GSOC.git\n")
-    cat("   cd chatR-GSOC\n")
-    cat("   R -e \"source('install_chatr.R'); install_chatr()\"\n")
-    stop("Installation cannot proceed without the project files.")
-  }
-  
-  cat("   📍 Found ChatR project at:", path, "\n")
   
   # Step 1: Complete cleanup
   cat("1. Complete cleanup...\n")
@@ -202,13 +242,26 @@ install_chatr <- function() {
     cat("   ⚠️  Backend not running - use chatr_serve()\n")
   }
   
-  # Step 8: Final summary
+  # Step 8: Cleanup temporary files (if remote install)
+  if (exists("is_remote") && is_remote && exists("clone_dir")) {
+    cat("\n8. Cleaning up temporary files...\n")
+    if (dir.exists(clone_dir)) {
+      unlink(clone_dir, recursive = TRUE)
+      cat("   ✅ Temporary files removed\n")
+    }
+  }
+  
+  # Step 9: Final summary
   cat("\n🎉 Package Installation Complete!\n")
   cat("=================================\n")
   cat("✅ library(chatr) now works as proper R package\n")
   cat("✅ ?chatr provides standard R documentation\n")
   cat("✅ All ChatR functionality preserved\n")
   cat("✅ No file ending warnings\n")
+  
+  if (exists("is_remote") && is_remote) {
+    cat("✅ Automatically downloaded and installed from GitHub\n")
+  }
   
   cat("\n📚 Standard R Package Usage:\n")
   cat("   library(chatr)           # Load package\n")
