@@ -2,30 +2,6 @@
 
 Complete installation and setup instructions for ChatR - your local AI assistant for R programming.
 
-## 🎯 Quick Install Options
-
-### Option 1: R Users (Recommended)
-```r
-# One-command install (handles everything automatically)
-source("https://raw.githubusercontent.com/your-org/chatR-GSOC/main/install_chatr.R")
-install_chatr()  
-
-# Start using immediately
-library(chatr)
-chatr("How do I create a linear regression?")
-```
-
-### Option 2: Manual Install (All Users)
-```bash
-# Clone and install
-git clone https://github.com/your-org/chatR-GSOC.git
-cd chatR-GSOC && ./quick_setup.sh
-
-# Start using
-chatr chat "How do I create plots in R?"
-```
-
----
 
 ## 📋 Prerequisites
 
