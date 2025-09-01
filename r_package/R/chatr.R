@@ -13,7 +13,7 @@ NULL
 #' Start an interactive chat session with the ChatR assistant.
 #'
 #' @param query Character. Optional initial query to ask ChatR.
-#' @param host Character. ChatR backend host (default: "http://localhost:8000").
+#' @param host Character. ChatR backend host (default: "http://localhost:8001").
 #' @param launch_ui Logical. Whether to launch the Shiny UI (default: TRUE in RStudio).
 #'
 #' @return Character response from ChatR or launches UI
@@ -27,7 +27,7 @@ NULL
 #' # Launch interactive UI
 #' chatr()
 #' }
-chatr <- function(query = NULL, host = "http://localhost:8000", launch_ui = NULL) {
+chatr <- function(query = NULL, host = "http://localhost:8001", launch_ui = NULL) {
   
   # Determine if we should launch UI
   if (is.null(launch_ui)) {
@@ -89,7 +89,7 @@ chatr <- function(query = NULL, host = "http://localhost:8000", launch_ui = NULL
 #' help_explain("lm")
 #' help_explain("ggplot", "ggplot2")
 #' }
-help_explain <- function(func, package = NULL, host = "http://localhost:8000") {
+help_explain <- function(func, package = NULL, host = "http://localhost:8001") {
   
   if (!.is_chatr_running(host)) {
     stop("ChatR backend is not running. Please start it first.")
@@ -123,7 +123,7 @@ help_explain <- function(func, package = NULL, host = "http://localhost:8000") {
 #'   plot(data$x, data$y)
 #' ")
 #' }
-analyze_code <- function(code, host = "http://localhost:8000") {
+analyze_code <- function(code, host = "http://localhost:8001") {
   
   if (!.is_chatr_running(host)) {
     stop("ChatR backend is not running. Please start it first.")
@@ -149,34 +149,76 @@ analyze_code <- function(code, host = "http://localhost:8000") {
 #'
 #' Start the ChatR backend server for the R package to communicate with.
 #'
-#' @param port Integer. Port to run the server on (default: 8000).
+#' @param port Integer. Port to run the server on (default: 8001).
 #' @param host Character. Host to bind to (default: "localhost").
 #'
 #' @return Invisible NULL
 #' @export
-chatr_serve <- function(port = 8000, host = "localhost") {
+chatr_serve <- function(port = 8001, host = "localhost") {
   message("Starting ChatR backend server...")
-  message("This will run the Python ChatR CLI in server mode.")
-  message("Make sure you have ChatR installed: pip install -e .")
   
-  # Try to start the server using system command
-  cmd <- paste("chatr serve --host", host, "--port", port)
+  # Find the correct ChatR command path
+  chatr_paths <- c(
+    "/Users/lihanxia/Documents/chatR-GSOC/venv/bin/chatr",
+    paste0(Sys.getenv("HOME"), "/Documents/chatR-GSOC/venv/bin/chatr"),
+    paste0(getwd(), "/venv/bin/chatr"),
+    Sys.which("chatr")
+  )
   
-  if (.Platform$OS.type == "unix") {
-    system(cmd, wait = FALSE)
+  chatr_cmd <- ""
+  for (path in chatr_paths) {
+    if (path != "" && file.exists(path)) {
+      chatr_cmd <- path
+      break
+    }
+  }
+  
+  if (chatr_cmd == "") {
+    message("ChatR command not found in expected locations.")
+    message("Trying alternative Python approach...")
+    
+    # Try alternative Python approach
+    python_paths <- c(
+      "/Users/lihanxia/Documents/chatR-GSOC/venv/bin/python",
+      paste0(Sys.getenv("HOME"), "/Documents/chatR-GSOC/venv/bin/python"),
+      "python3",
+      "python"
+    )
+    
+    for (python_path in python_paths) {
+      if (python_path != "" && (file.exists(python_path) || Sys.which(python_path) != "")) {
+        chatr_cmd <- paste(python_path, "-m chatr.cli.main serve --host", host, "--port", port)
+        break
+      }
+    }
   } else {
-    shell(cmd, wait = FALSE)
+    chatr_cmd <- paste(chatr_cmd, "serve --host", host, "--port", port)
+  }
+  
+  if (chatr_cmd == "") {
+    stop("Cannot find ChatR installation. Please ensure ChatR is installed properly.")
+  }
+  
+  message("Starting server with command: ", chatr_cmd)
+  
+  # Try to start the server (simple approach that works)
+  if (.Platform$OS.type == "unix") {
+    system(paste(chatr_cmd, "> /tmp/chatr_serve.log 2>&1"), wait = FALSE)
+  } else {
+    shell(paste("start /b", chatr_cmd), wait = FALSE)
   }
   
   # Wait a moment for server to start
-  Sys.sleep(2)
+  message("Waiting for server to start...")
+  Sys.sleep(3)
   
   # Check if server started successfully
   server_url <- paste0("http://", host, ":", port)
   if (.is_chatr_running(server_url)) {
-    message("ChatR server started successfully at ", server_url)
+    message("✅ ChatR server started successfully at ", server_url)
   } else {
-    warning("Server may not have started successfully. Check your ChatR installation.")
+    message("⚠️ Server startup may need more time. Check /tmp/chatr_serve.log for details.")
+    message("Try running your ChatR commands - the server might still be starting.")
   }
   
   invisible(NULL)
@@ -352,41 +394,51 @@ chatr_serve <- function(port = 8000, host = "localhost") {
 # Auto-start ChatR backend
 .auto_start_chatr_backend <- function() {
   tryCatch({
-    # Try different ways to find and start ChatR
+    # Use the same logic as chatr_serve() for consistency
     chatr_paths <- c(
-      Sys.which("chatr"),  # System PATH
-      path.expand("~/chatR-GSOC/venv/bin/chatr"),  # User's home directory
-      path.expand("~/Documents/chatR-GSOC/venv/bin/chatr"),  # Common location
-      "/usr/local/bin/chatr",  # System installation
-      paste0(Sys.getenv("HOME"), "/.local/bin/chatr")  # Local user installation
+      "/Users/lihanxia/Documents/chatR-GSOC/venv/bin/chatr",
+      paste0(Sys.getenv("HOME"), "/Documents/chatR-GSOC/venv/bin/chatr"),
+      paste0(getwd(), "/venv/bin/chatr"),
+      Sys.which("chatr")
     )
     
     chatr_cmd <- ""
     for (path in chatr_paths) {
       if (path != "" && file.exists(path)) {
-        chatr_cmd <- path
+        chatr_cmd <- paste(path, "serve --port 8001")
         break
       }
     }
     
+    # Try Python approach if direct command not found
     if (chatr_cmd == "") {
-      message("ChatR command not found. Please ensure:")
-      message("  1. ChatR is installed: pip install -e .")
-      message("  2. Virtual environment is activated")
+      python_paths <- c(
+        "/Users/lihanxia/Documents/chatR-GSOC/venv/bin/python",
+        paste0(Sys.getenv("HOME"), "/Documents/chatR-GSOC/venv/bin/python"),
+        "python3",
+        "python"
+      )
+      
+      for (python_path in python_paths) {
+        if (python_path != "" && (file.exists(python_path) || Sys.which(python_path) != "")) {
+          chatr_cmd <- paste(python_path, "-m chatr.cli.main serve --port 8001")
+          break
+        }
+      }
+    }
+    
+    if (chatr_cmd == "") {
+      message("ChatR installation not found. Use chatr_serve() to start manually.")
       return(FALSE)
     }
     
-    message(paste("Found ChatR at:", chatr_cmd))
+    message(paste("Found ChatR at:", strsplit(chatr_cmd, " ")[[1]][1]))
     
-    # Start ChatR backend in background with proper environment
+    # Start ChatR backend in background (simple approach)
     if (.Platform$OS.type == "unix") {
-      # Unix/Mac - use bash to properly handle background process
-      cmd <- paste0("bash -c '", chatr_cmd, " serve --port 8000 > /tmp/chatr.log 2>&1 &'")
-      system(cmd, wait = FALSE)
+      system(paste(chatr_cmd, "> /tmp/chatr.log 2>&1"), wait = FALSE)
     } else {
-      # Windows  
-      cmd <- paste0("start /b ", chatr_cmd, " serve --port 8000")
-      system(cmd, wait = FALSE)
+      system(paste("start /b", chatr_cmd), wait = FALSE)
     }
     
     message("ChatR backend starting... (check /tmp/chatr.log for details)")
@@ -394,9 +446,20 @@ chatr_serve <- function(port = 8000, host = "localhost") {
     
   }, error = function(e) {
     message("Error starting ChatR backend: ", e$message)
+    message("Try running chatr_serve() manually")
     return(FALSE)
   })
 }
+
+
+
+
+
+
+
+
+
+
 
 
 

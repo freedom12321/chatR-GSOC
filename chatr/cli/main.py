@@ -174,5 +174,63 @@ def serve(
         raise typer.Exit(1)
 
 
+@app.command()
+def mcp(
+    host: str = typer.Option("localhost", help="Host to bind MCP server to"),
+    port: int = typer.Option(8002, help="Port for MCP server (separate from main server)"),
+    log_level: str = typer.Option("info", help="Log level")
+):
+    """Start ChatR MCP server for agentic framework integration.
+    
+    The MCP server exposes ChatR tools as REST endpoints that can be used by:
+    - Cursor IDE
+    - GitHub Copilot extensions  
+    - Custom agents
+    - Any HTTP client
+    
+    Runs on separate port (8002) to avoid conflicts with main ChatR server (8001).
+    """
+    
+    console.print(f"[bold green]🚀 Starting ChatR MCP Server...[/bold green]")
+    console.print(f"📡 Host: {host}")
+    console.print(f"🔌 Port: {port}")
+    console.print(f"📚 Endpoints: http://{host}:{port}/mcp/")
+    console.print(f"[dim]ℹ️  Separate from main ChatR server on port 8001[/dim]")
+    
+    try:
+        import uvicorn
+        from ..mcp.server import create_mcp_server
+        from ..core.config import ChatRConfig
+        
+        # Load ChatR config
+        config = ChatRConfig.load_config()
+        config.setup_directories()
+        
+        # Create MCP FastAPI app
+        mcp_app = create_mcp_server(config)
+        
+        console.print("✅ MCP server configured successfully")
+        console.print("\n📋 Available endpoints:")
+        console.print(f"   • GET  http://{host}:{port}/mcp/tools")
+        console.print(f"   • POST http://{host}:{port}/mcp/execute") 
+        console.print(f"   • GET  http://{host}:{port}/mcp/health")
+        console.print(f"\n🔗 Integration guide: chatr mcp --help")
+        
+        # Start server
+        uvicorn.run(
+            mcp_app,
+            host=host,
+            port=port,
+            log_level=log_level.lower()
+        )
+        
+    except ImportError:
+        console.print("[red]Error: FastAPI/Uvicorn not installed. Install with: pip install fastapi uvicorn[/red]")
+        raise typer.Exit(1)
+    except Exception as e:
+        console.print(f"[red]MCP server error: {e}[/red]")
+        raise typer.Exit(1)
+
+
 if __name__ == "__main__":
     app()

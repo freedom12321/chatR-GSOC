@@ -27,6 +27,10 @@ class ChatRLLMClient:
         # Check if Ollama is running
         self._check_ollama_connection()
         
+        # Model warming state
+        self._model_warmed = False
+        self._warming_in_progress = False
+        
         # System prompt for R assistance
         self.system_prompt = """You are ChatR, an expert R programming assistant. You help users with:
 
@@ -78,6 +82,78 @@ Be concise but thorough. Focus on practical, working solutions."""
         except Exception as e:
             logger.error(f"Error checking/pulling model: {e}")
             raise
+    
+    def warm_model(self, background: bool = False) -> None:
+        """Pre-warm the model to reduce first-query latency.
+        
+        Args:
+            background: If True, warm in background thread
+        """
+        if self._model_warmed or self._warming_in_progress:
+            return
+            
+        if background:
+            import asyncio
+            import threading
+            
+            def _warm_background():
+                self._warming_in_progress = True
+                try:
+                    self._perform_warming()
+                finally:
+                    self._warming_in_progress = False
+                    
+            thread = threading.Thread(target=_warm_background, daemon=True)
+            thread.start()
+            logger.info("Model warming started in background")
+        else:
+            self._perform_warming()
+    
+    def _perform_warming(self) -> None:
+        """Perform the actual model warming."""
+        try:
+            logger.info(f"Warming model {self.model}...")
+            
+            # Send a simple query to load model into memory
+            warm_query = "Hello, this is a warm-up query."
+            
+            response = self.client.chat(
+                model=self.model,
+                messages=[{
+                    'role': 'user', 
+                    'content': warm_query
+                }],
+                options={'num_predict': 10}  # Short response for warming
+            )
+            
+            if response and 'message' in response:
+                self._model_warmed = True
+                logger.info("Model warming completed successfully")
+            else:
+                logger.warning("Model warming completed but response unclear")
+                
+        except Exception as e:
+            logger.error(f"Model warming failed: {e}")
+            
+    def is_model_warm(self) -> bool:
+        """Check if model is currently warm (loaded in memory)."""
+        try:
+            # Quick check - if we can get model info quickly, it's likely warm
+            import requests
+            response = requests.get(f"{self.host}/api/ps", timeout=2)
+            
+            if response.status_code == 200:
+                running_models = response.json()
+                model_running = any(
+                    model.get('name') == self.model 
+                    for model in running_models.get('models', [])
+                )
+                self._model_warmed = model_running
+                return model_running
+            return self._model_warmed
+            
+        except Exception:
+            return self._model_warmed
     
     def generate_response(self, 
                          user_query: str, 

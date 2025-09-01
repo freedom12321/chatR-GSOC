@@ -58,6 +58,9 @@ class ChatRAssistant:
         logger.info("Initializing ChatR Assistant with Enhanced RAG...")
         
         try:
+            # Phase 1: Smart initialization with model warming
+            self._initialize_phase1()
+            
             # Initialize Enhanced RAG System
             self.enhanced_rag.initialize()
             
@@ -67,6 +70,52 @@ class ChatRAssistant:
         except Exception as e:
             logger.error(f"Failed to initialize ChatR Assistant: {e}")
             raise
+    
+    def _initialize_phase1(self) -> None:
+        """Phase 1 initialization: Fast setup with essential coverage."""
+        logger.info("Starting Phase 1 initialization...")
+        
+        # 1. Check if we have essential index cached
+        essential_cache_file = self.config.index_dir / "essential_index.json"
+        
+        if not essential_cache_file.exists():
+            logger.info("Building essential R index (one-time setup)...")
+            self._build_essential_index()
+        else:
+            logger.info("Essential R index found, skipping build")
+        
+        # 2. Start model warming in background
+        if not self.llm_client.is_model_warm():
+            logger.info("Starting background model warming...")
+            self.llm_client.warm_model(background=True)
+        else:
+            logger.info("Model is already warm")
+    
+    def _build_essential_index(self) -> None:
+        """Build the essential R documentation index."""
+        try:
+            # Use the indexer to build essential documentation
+            indexer = RDocumentationIndexer(self.config.cache_dir)
+            documents = indexer.build_essential_index()
+            
+            # Save to cache for future use
+            essential_cache_file = self.config.index_dir / "essential_index.json" 
+            essential_cache_file.parent.mkdir(parents=True, exist_ok=True)
+            
+            with open(essential_cache_file, 'w') as f:
+                import json
+                import time
+                json.dump({
+                    'documents': len(documents),
+                    'timestamp': time.time(),
+                    'status': 'complete'
+                }, f)
+            
+            logger.info(f"Essential index built: {len(documents)} functions indexed")
+            
+        except Exception as e:
+            logger.error(f"Failed to build essential index: {e}")
+            # Don't fail completely - continue with available data
     
     def process_query(self, user_query: str) -> str:
         """Process a user query and return a response."""

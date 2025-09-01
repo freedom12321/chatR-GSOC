@@ -7,7 +7,22 @@ install_chatr <- function() {
   cat("====================================\n\n")
   
   # Check if we're being sourced from GitHub (remote) or locally
-  is_remote <- !file.exists("r_package/DESCRIPTION") && !file.exists("./r_package/DESCRIPTION")
+  # Look for r_package directory in multiple locations
+  local_paths_to_check <- c(
+    "r_package/DESCRIPTION",           # Current directory
+    "./r_package/DESCRIPTION",         # Explicit current  
+    "../r_package/DESCRIPTION",        # Parent directory
+    "chatR-GSOC/r_package/DESCRIPTION", # Subdirectory
+    file.path(dirname(getwd()), "r_package/DESCRIPTION")  # Parent of current
+  )
+  
+  # For the specific user path, add it if it exists
+  if (dir.exists("/Users/lihanxia/Documents/chatR-GSOC")) {
+    local_paths_to_check <- c(local_paths_to_check, "/Users/lihanxia/Documents/chatR-GSOC/r_package/DESCRIPTION")
+  }
+  
+  # Check if any local path exists
+  is_remote <- !any(sapply(local_paths_to_check, file.exists))
   
   if (is_remote) {
     cat("🌐 Remote installation detected - downloading ChatR...\n")
@@ -51,21 +66,12 @@ install_chatr <- function() {
   } else {
     cat("💻 Local installation detected\n")
     
-    # Try to find ChatR project directory locally
-    possible_paths <- c(
-      ".",  # Current directory
-      "..",  # Parent directory
-      "~/chatR-GSOC",  # User's home
-      "~/Documents/chatR-GSOC",  # Common location
-      file.path(getwd(), "chatR-GSOC"),  # Subdirectory
-      file.path(dirname(getwd()), "chatR-GSOC")  # Parent's subdirectory
-    )
-    
+    # Use the same logic as detection - find the path that has r_package
     path <- NULL
-    for (p in possible_paths) {
-      expanded_path <- path.expand(p)
-      if (file.exists(file.path(expanded_path, "r_package", "DESCRIPTION"))) {
-        path <- expanded_path
+    for (check_path in local_paths_to_check) {
+      if (file.exists(check_path)) {
+        # Extract the base path (remove /r_package/DESCRIPTION)
+        path <- dirname(dirname(check_path))
         break
       }
     }
@@ -106,6 +112,17 @@ install_chatr <- function() {
   
   # Fix timeout issues and ensure proper file endings
   r_files <- list.files(file.path(path, "r_package", "R"), pattern = "\\.R$", full.names = TRUE)
+  
+  # Verify key files exist
+  required_files <- c("chatr.R", "chatr_repl.R", "chatr_advanced.R")
+  for (req_file in required_files) {
+    file_found <- any(basename(r_files) == req_file)
+    if (!file_found) {
+      cat("   ⚠️ Warning: Missing", req_file, "\n")
+    } else {
+      cat("   ✅ Found", req_file, "\n")
+    }
+  }
   
   for (r_file in r_files) {
     content <- readLines(r_file, warn = FALSE)

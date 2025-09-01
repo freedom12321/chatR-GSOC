@@ -1,0 +1,1 @@
+"""MCP (Modular Control Plane) endpoints for ChatR tools."""

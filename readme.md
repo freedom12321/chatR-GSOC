@@ -1,5 +1,8 @@
 # ChatR: An Intelligent, Local Assistant for R Programmers
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![R Package](https://img.shields.io/badge/R%20Package-Available-blue.svg)](#installation)
+[![Python CLI](https://img.shields.io/badge/Python%20CLI-Available-green.svg)](#installation)
 
 ## The Problem
 R users, especially package developers and new contributors, face a common challenge: existing large language models often provide inaccurate or incomplete R code. They struggle with third-party packages, fail to provide precise answers about R contribution workflows, and are often too resource-intensive or proprietary for many users. The result is a frustrating, time-consuming experience that limits learning and collaboration.
@@ -30,6 +33,7 @@ install_chatr()
 library(chatr)
 chatr("How do I create a linear regression with diagnostics?")  # ✅ Full LLM analysis
 chatr_analyze("mtcars")  # ✅ AI-powered dataset analysis
+chatr_repl()  # ✅ Interactive chat interface
 chatr_code("machine learning model")  # ✅ Smart code generation
 ```
 
@@ -106,19 +110,22 @@ chatr serve  # Start backend for R package integration
 
 ### 🎯 **R-Specific Intelligence** 
 - **Live R Execution**: Safely runs R code to verify suggestions
-- **Package-Aware**: Knows about 20,000+ R packages and their relationships
+- **Package-Aware**: Knows about 120+ indexed R functions from essential packages
 - **Educational**: Explains concepts step-by-step with working examples
 
 ### 🔧 **Multiple Interfaces**
 - **R Package**: Native R functions with full documentation (`?chatr`)
+- **Interactive REPL**: Chat interface with `chatr_repl()` for real-time assistance
 - **RStudio Integration**: Addins and gadgets for seamless workflow
 - **Python CLI**: Cross-platform command-line tool
+- **MCP Integration**: Tools for agentic frameworks (Cursor, Copilot)
 - **API Server**: Backend for custom integrations
 
-### 🧠 **Advanced Features** (New!)
+### 🧠 **Advanced Features**
 - **Environment Awareness**: Understands your current R session and data
 - **Smart Code Generation**: Creates complete scripts with `chatr_generate_script()`
-- **Interactive Sessions**: Step-by-step coding guidance with `chatr_code_session()`
+- **Interactive Chat**: Real-time programming assistance with `chatr_repl()`
+- **MCP Endpoints**: 6 tools exposed for agentic framework integration
 - **Data Analysis Automation**: Intelligent dataset exploration with `chatr_analyze()`
 
 ## 🎪 All ChatR Features
@@ -126,6 +133,7 @@ chatr serve  # Start backend for R package integration
 | Feature | R Package Function | CLI Command | Description |
 |---------|-------------------|-------------|-------------|
 | **Interactive Chat** | `chatr()` | `chatr chat` | Natural language R programming assistance |
+| **Interactive REPL** | `chatr_repl()` | `chatr chat -i` | Real-time chat interface with context memory |
 | **Function Help** | `help_explain()` | `chatr chat` | Intelligent documentation with examples |
 | **Code Analysis** | `analyze_code()` | `chatr chat` | Code review and improvement suggestions |
 | **Data Exploration** | `chatr_analyze()` | - | Automated dataset analysis and insights |
@@ -138,6 +146,7 @@ chatr serve  # Start backend for R package integration
 | **Analysis Tips** | `chatr_analysis_tips()` | - | Get best practices for data analysis |
 | **Interactive Assistant** | `chatr_assistant()` | - | Guided data analysis workflow |
 | **Selected Code Analysis** | `chatr_analyze_selection()` | - | RStudio addin for code analysis |
+| **MCP Tools** | - | `chatr mcp` | 6 tools for agentic frameworks (port 8002) |
 
 *Note: CLI uses `chatr chat` for all queries - specific functionality depends on your question*
 
@@ -176,6 +185,9 @@ chatr_generate_script(
   output_file = "mtcars_eda.R"
 )
 
+# Interactive REPL interface
+chatr_repl()  # Start interactive chat with context memory
+
 # Interactive code generation with execution
 chatr_code("create correlation heatmap", execute_code = TRUE)
 ```
@@ -200,7 +212,10 @@ chatr chat --interactive
 # > You: How do I merge data frames?
 # > ChatR: [detailed explanation with examples]
 
-# Start server for R integration
+# Start MCP server for agentic frameworks
+chatr mcp --port 8002
+
+# Start main server for R integration
 chatr serve
 ```
 
@@ -273,7 +288,7 @@ The system uses a thin cache for metadata and downloads full documentation on-de
 ## Getting Started
 
 ### For R Users (Recommended)
-**🎯 Quick Start**: [R User Guide](R_USER_GUIDE.md) | [R Installation](INSTALLATION_R.md)
+**🎯 Quick Start**: [User Guide](USER_GUIDE.md) | [Setup Guide](SETUP.md)
 
 ```r
 # 1. Start backend: chatr serve (in terminal)
@@ -294,7 +309,7 @@ chatr('how to do linear regression with assumptions')
 ### Installation
 ```bash
 # Clone and setup
-git clone https://github.com/your-org/chatR-GSOC.git
+git clone https://github.com/freedom12321/chatR-GSOC.git
 cd chatR-GSOC
 python -m venv venv
 source venv/bin/activate
@@ -314,21 +329,21 @@ ChatR is designed to be accessible wherever you work.
 
 ### Option A: R Integration (Featured)
 Complete R client with all AI capabilities:
-- **Functions:** `chatr()`, `chatr_analyze()`, `chatr_list_data()`, `help_explain()`
-- **Smart Features:** Auto-start backend, data analysis planning, interactive assistant
-- **Usage:** Load once with `source()`, use everywhere
+- **Functions:** `chatr()`, `chatr_repl()`, `chatr_analyze()`, `chatr_list_data()`, `help_explain()`
+- **Smart Features:** Auto-start backend, interactive REPL, data analysis planning
+- **Usage:** `library(chatr)` then use any function
 
 ### Option B: Cross-Platform CLI  
 Command-line tool for terminal users:
 ```bash
 chatr chat "How do I create a violin plot?"
-chatr analyze my_data.csv
+chatr chat --interactive  # Interactive mode
+chatr mcp --port 8002     # MCP server for agentic frameworks
 ```
 
-### Option C: R Package (Traditional)
-R package that communicates with backend:
-- **Easy Install:** `source("install_chatr.R"); install_chatr()`
-- **Functions:** Package-based approach with `library(chatr)`
-- **Documentation:** `?chatr`, `?chatr_analyze` (full R help system)
-- **Guide:** [Traditional Package Installation](INSTALL_TRADITIONAL_PACKAGE.md)
-- **Status:** ✅ Works with multiple installation methods
+### Option C: MCP Integration
+Tools for agentic frameworks (Cursor, Copilot, etc.):
+- **MCP Server:** `chatr mcp --port 8002`
+- **6 Tools Available:** r_execute, r_help, r_search, r_explain, r_package_info, r_vignettes
+- **Usage:** Integrate with agentic frameworks via HTTP endpoints
+- **Status:** ✅ Working on port 8002 (separate from main server)

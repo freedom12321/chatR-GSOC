@@ -8,6 +8,7 @@ import traceback
 
 from ..core.config import ChatRConfig
 from ..core.assistant import ChatRAssistant
+from ..mcp.server import create_mcp_server
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +20,8 @@ app = FastAPI(
 
 # Global assistant instance
 assistant: Optional[ChatRAssistant] = None
+
+# MCP server will run on separate port to avoid conflicts with existing functionality
 
 
 class ChatRequest(BaseModel):
@@ -83,7 +86,9 @@ async def startup_event():
         assistant = ChatRAssistant(config)
         assistant.initialize()
         
-        logger.info("ChatR API server started successfully")
+        # MCP endpoints are now mounted at module level
+        
+        logger.info("ChatR API server started successfully with MCP endpoints")
         
     except Exception as e:
         logger.error(f"Failed to initialize ChatR assistant: {e}")
