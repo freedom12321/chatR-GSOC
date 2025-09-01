@@ -1,5 +1,9 @@
 # ChatR: An Intelligent, Local Assistant for R Programmers
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![R Package](https://img.shields.io/badge/R%20Package-Available-blue.svg)](#installation)
+[![Python CLI](https://img.shields.io/badge/Python%20CLI-Available-green.svg)](#installation)
+
 ## The Problem
 R users, especially package developers and new contributors, face a common challenge: existing large language models often provide inaccurate or incomplete R code. They struggle with third-party packages, fail to provide precise answers about R contribution workflows, and are often too resource-intensive or proprietary for many users. The result is a frustrating, time-consuming experience that limits learning and collaboration.
 
@@ -19,19 +23,30 @@ Think of ChatR as your personal, knowledgeable R expert who can search documenta
 
 ## 🚀 Quick Start
 
-### For R Users (Recommended - Full AI Functionality)
+### For R Users (Current Process)
+```bash
+# 1. First: Install and start CLI backend (one-time setup)
+git clone https://github.com/freedom12321/chatR-GSOC.git
+cd chatR-GSOC
+pip install -e .
+chatr init
+chatr serve  # Keep this running in terminal
+```
+
 ```r
-# 1. Install ChatR with full backend (one-time setup)
+# 2. Then: Install and use R package (in new R session)
 source("https://raw.githubusercontent.com/freedom12321/chatR-GSOC/main/install_chatr.R")
 install_chatr()
 
-# 2. Use immediately with full AI power
+# 3. Use immediately with full AI power
 library(chatr)
 chatr("How do I create a linear regression with diagnostics?")  # ✅ Full LLM analysis
-chatr_analyze("mtcars")  # ✅ AI-powered dataset analysis
+chatr_analyze("mtcars")  # ✅ AI-powered dataset analysis  
 chatr_repl()  # ✅ Interactive chat interface
 chatr_code("machine learning model")  # ✅ Smart code generation
 ```
+
+> **💡 Future Update**: We're working on making this seamless - soon you'll only need the R package!
 
 ### ⚠️ **Important: Full Functionality Requires Backend**
 
@@ -118,10 +133,11 @@ chatr serve  # Start backend for R package integration
 - **API Server**: Backend for custom integrations
 
 ### 🧠 **Advanced Features**
+- **Interactive REPL**: Real-time chat interface with `chatr_repl()` for console-based assistance
+- **MCP Integration**: 6 tools for agentic frameworks (Cursor, Copilot) via `chatr mcp --port 8002`
 - **Environment Awareness**: Understands your current R session and data
 - **Smart Code Generation**: Creates complete scripts with `chatr_generate_script()`
-- **Interactive Chat**: Real-time programming assistance with `chatr_repl()`
-- **MCP Endpoints**: 6 tools exposed for agentic framework integration
+- **Enhanced Documentation**: 120+ indexed R functions from essential packages
 - **Data Analysis Automation**: Intelligent dataset exploration with `chatr_analyze()`
 
 ## 🎪 All ChatR Features
@@ -181,8 +197,9 @@ chatr_generate_script(
   output_file = "mtcars_eda.R"
 )
 
-# Interactive REPL interface
-chatr_repl()  # Start interactive chat with context memory
+# Interactive REPL interface (NEW!)
+chatr_repl()  # Start real-time chat in R console
+# Features: context memory, built-in commands, colored interface
 
 # Interactive code generation with execution
 chatr_code("create correlation heatmap", execute_code = TRUE)
@@ -208,8 +225,8 @@ chatr chat --interactive
 # > You: How do I merge data frames?
 # > ChatR: [detailed explanation with examples]
 
-# Start MCP server for agentic frameworks
-chatr mcp --port 8002
+# Start MCP server for agentic frameworks (NEW!)
+chatr mcp --port 8002  # 6 tools: r_execute, r_help, r_search, r_explain, r_package_info, r_vignettes
 
 # Start main server for R integration
 chatr serve
@@ -337,9 +354,21 @@ chatr chat --interactive  # Interactive mode
 chatr mcp --port 8002     # MCP server for agentic frameworks
 ```
 
-### Option C: MCP Integration
+### Option C: MCP Integration (NEW!)
 Tools for agentic frameworks (Cursor, Copilot, etc.):
 - **MCP Server:** `chatr mcp --port 8002`
 - **6 Tools Available:** r_execute, r_help, r_search, r_explain, r_package_info, r_vignettes
 - **Usage:** Integrate with agentic frameworks via HTTP endpoints
 - **Status:** ✅ Working on port 8002 (separate from main server)
+
+**Quick Test:**
+```bash
+# Start MCP server
+chatr mcp --port 8002
+
+# Test endpoints
+curl http://localhost:8002/mcp/health
+curl -X POST http://localhost:8002/mcp/execute \
+  -H "Content-Type: application/json" \
+  -d '{"tool": "r_execute", "parameters": {"code": "summary(mtcars)"}}'
+```
