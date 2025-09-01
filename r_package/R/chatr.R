@@ -157,12 +157,25 @@ analyze_code <- function(code, host = "http://localhost:8001") {
 chatr_serve <- function(port = 8001, host = "localhost") {
   message("Starting ChatR backend server...")
   
-  # Find the correct ChatR command path
+  # Find the correct ChatR command path (same as .auto_start_chatr_backend)
   chatr_paths <- c(
+    # Your existing paths (preserved for your local setup)
     "/Users/lihanxia/Documents/chatR-GSOC/venv/bin/chatr",
     paste0(Sys.getenv("HOME"), "/Documents/chatR-GSOC/venv/bin/chatr"),
     paste0(getwd(), "/venv/bin/chatr"),
-    Sys.which("chatr")
+    Sys.which("chatr"),
+    # Additional paths for GitHub users
+    paste0(Sys.getenv("HOME"), "/.local/bin/chatr"),  # pip --user install
+    "/usr/local/bin/chatr",  # System-wide pip install
+    paste0(Sys.getenv("HOME"), "/anaconda3/bin/chatr"),  # Anaconda users
+    paste0(Sys.getenv("HOME"), "/miniconda3/bin/chatr"),  # Miniconda users
+    paste0(Sys.getenv("HOME"), "/opt/anaconda3/bin/chatr"),  # Mac Anaconda
+    paste0(Sys.getenv("CONDA_PREFIX"), "/bin/chatr"),  # Active conda environment
+    paste0(Sys.getenv("VIRTUAL_ENV"), "/bin/chatr"),  # Active virtual environment
+    # Common GitHub clone locations
+    paste0(Sys.getenv("HOME"), "/chatR-GSOC/venv/bin/chatr"),
+    paste0(Sys.getenv("HOME"), "/projects/chatR-GSOC/venv/bin/chatr"),
+    paste0(Sys.getenv("HOME"), "/dev/chatR-GSOC/venv/bin/chatr")
   )
   
   chatr_cmd <- ""
@@ -177,12 +190,21 @@ chatr_serve <- function(port = 8001, host = "localhost") {
     message("ChatR command not found in expected locations.")
     message("Trying alternative Python approach...")
     
-    # Try alternative Python approach
+    # Try alternative Python approach (same as .auto_start_chatr_backend)
     python_paths <- c(
+      # Your existing paths (preserved)
       "/Users/lihanxia/Documents/chatR-GSOC/venv/bin/python",
       paste0(Sys.getenv("HOME"), "/Documents/chatR-GSOC/venv/bin/python"),
-      "python3",
-      "python"
+      # System Python paths for GitHub users
+      "python3",  # Most common
+      "python",
+      paste0(Sys.getenv("VIRTUAL_ENV"), "/bin/python"),  # Active venv
+      paste0(Sys.getenv("CONDA_PREFIX"), "/bin/python"),  # Active conda
+      paste0(Sys.getenv("HOME"), "/anaconda3/bin/python"),  # Anaconda
+      paste0(Sys.getenv("HOME"), "/miniconda3/bin/python"),  # Miniconda
+      # Common GitHub clone locations
+      paste0(Sys.getenv("HOME"), "/chatR-GSOC/venv/bin/python"),
+      paste0(Sys.getenv("HOME"), "/projects/chatR-GSOC/venv/bin/python")
     )
     
     for (python_path in python_paths) {
@@ -196,7 +218,13 @@ chatr_serve <- function(port = 8001, host = "localhost") {
   }
   
   if (chatr_cmd == "") {
-    stop("Cannot find ChatR installation. Please ensure ChatR is installed properly.")
+    message("❌ Could not find ChatR installation anywhere!")
+    message("📍 Diagnostic Help:")
+    message("  1. Check if ChatR is installed: Run 'pip list | grep chatr' in terminal")
+    message("  2. If not installed: cd to chatR-GSOC folder and run 'pip install -e .'")
+    message("  3. If installed but still not working: Run 'which chatr' or 'python3 -m chatr.cli.main --help'")
+    message("  4. If Python module works: The server should start automatically")
+    stop("Cannot find ChatR installation. Please follow the diagnostic steps above.")
   }
   
   message("Starting server with command: ", chatr_cmd)
