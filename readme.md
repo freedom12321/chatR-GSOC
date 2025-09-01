@@ -27,7 +27,7 @@ git clone https://github.com/freedom12321/chatR-GSOC.git
 cd chatR-GSOC
 pip install -e .
 chatr init
-chatr serve  # Keep this running in terminal
+chatr serve  # run the first time and then can you can close terminal and R package still works
 ```
 
 ```r
