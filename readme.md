@@ -45,55 +45,6 @@ chatr_code("machine learning model")  # ✅ Smart code generation
 
 > **💡 Future Update**: We're working on making this seamless - soon you'll only need the R package!
 
-### ⚠️ **Important: Full Functionality Requires Backend**
-
-**ChatR has two parts:**
-- **R Package**: Functions like `chatr()`, `chatr_analyze()` (interface)
-- **Python Backend**: LLM + RAG system (the AI brain)
-
-**For FULL AI functionality, you need BOTH:**
-
-#### **Option 1: Complete Installation (Recommended)**
-```r
-# This installs BOTH R package AND Python backend automatically
-source("https://raw.githubusercontent.com/freedom12321/chatR-GSOC/main/install_chatr.R")
-install_chatr()  # ✅ Sets up everything: Python CLI + R package + LLM
-```
-
-#### **Option 2: Manual Backend Setup**
-```bash
-# 1. Install Python backend first
-git clone https://github.com/freedom12321/chatR-GSOC.git
-cd chatR-GSOC
-pip install -e .
-ollama pull llama3.2:3b-instruct
-
-# 2. Start backend server
-chatr serve
-
-# 3. Then install R package
-# R -e "devtools::install('r_package')"
-```
-
-#### **What Happens Without Backend:**
-```r
-# R package only (no backend running):
-library(chatr)
-chatr("help me")  
-# Result: ❌ "ChatR backend not running" + setup instructions
-#         ❌ No AI responses, no code generation, no analysis
-```
-
-#### **What You Get With Complete Setup:**
-```r
-# R package + Backend running:
-library(chatr)
-chatr("help me")  
-# Result: ✅ Full AI analysis with code examples
-#         ✅ Smart suggestions and explanations
-#         ✅ All advanced features work
-```
-
 ### For CLI Users
 ```bash
 # Install and setup
@@ -295,44 +246,6 @@ To create a truly interactive experience, ChatR will integrate directly into the
 The system uses a thin cache for metadata and downloads full documentation on-demand, which keeps its local footprint minimal.
 ---
 
-## Getting Started
-
-### For R Users (Recommended)
-**🎯 Quick Start**: [User Guide](USER_GUIDE.md) | [Setup Guide](SETUP.md)
-
-```r
-# 1. Start backend: chatr serve (in terminal)
-# 2. Load in R:
-source("/path/to/chatR-GSOC/chatr_complete.R")
-
-# 3. Use immediately:
-data(mtcars)
-chatr_analyze("mtcars")
-chatr('how to do linear regression with assumptions')
-```
-
-### Prerequisites
-- Python 3.8+
-- R 4.0+ (for R integration)
-- Ollama for local LLM
-
-### Installation
-```bash
-# Clone and setup
-git clone https://github.com/freedom12321/chatR-GSOC.git
-cd chatR-GSOC
-python -m venv venv
-source venv/bin/activate
-pip install -e .
-
-# Setup Ollama
-curl -fsSL https://ollama.ai/install.sh | sh
-ollama pull llama3.2:3b-instruct
-
-# Initialize ChatR
-chatr init
-chatr serve
-```
 
 ## Delivery Options
 ChatR is designed to be accessible wherever you work.
