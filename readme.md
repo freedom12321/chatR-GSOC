@@ -1,8 +1,5 @@
 # ChatR: An Intelligent, Local Assistant for R Programmers
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![R Package](https://img.shields.io/badge/R%20Package-Available-blue.svg)](#installation)
-[![Python CLI](https://img.shields.io/badge/Python%20CLI-Available-green.svg)](#installation)
 
 ## The Problem
 R users, especially package developers and new contributors, face a common challenge: existing large language models often provide inaccurate or incomplete R code. They struggle with third-party packages, fail to provide precise answers about R contribution workflows, and are often too resource-intensive or proprietary for many users. The result is a frustrating, time-consuming experience that limits learning and collaboration.
