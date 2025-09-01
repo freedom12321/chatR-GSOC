@@ -396,10 +396,23 @@ chatr_serve <- function(port = 8001, host = "localhost") {
   tryCatch({
     # Use the same logic as chatr_serve() for consistency
     chatr_paths <- c(
+      # Your existing paths (preserved for your local setup)
       "/Users/lihanxia/Documents/chatR-GSOC/venv/bin/chatr",
       paste0(Sys.getenv("HOME"), "/Documents/chatR-GSOC/venv/bin/chatr"),
       paste0(getwd(), "/venv/bin/chatr"),
-      Sys.which("chatr")
+      Sys.which("chatr"),
+      # Additional paths for GitHub users
+      paste0(Sys.getenv("HOME"), "/.local/bin/chatr"),  # pip --user install
+      "/usr/local/bin/chatr",  # System-wide pip install
+      paste0(Sys.getenv("HOME"), "/anaconda3/bin/chatr"),  # Anaconda users
+      paste0(Sys.getenv("HOME"), "/miniconda3/bin/chatr"),  # Miniconda users
+      paste0(Sys.getenv("HOME"), "/opt/anaconda3/bin/chatr"),  # Mac Anaconda
+      paste0(Sys.getenv("CONDA_PREFIX"), "/bin/chatr"),  # Active conda environment
+      paste0(Sys.getenv("VIRTUAL_ENV"), "/bin/chatr"),  # Active virtual environment
+      # Common GitHub clone locations
+      paste0(Sys.getenv("HOME"), "/chatR-GSOC/venv/bin/chatr"),
+      paste0(Sys.getenv("HOME"), "/projects/chatR-GSOC/venv/bin/chatr"),
+      paste0(Sys.getenv("HOME"), "/dev/chatR-GSOC/venv/bin/chatr")
     )
     
     chatr_cmd <- ""
@@ -413,10 +426,19 @@ chatr_serve <- function(port = 8001, host = "localhost") {
     # Try Python approach if direct command not found
     if (chatr_cmd == "") {
       python_paths <- c(
+        # Your existing paths (preserved)
         "/Users/lihanxia/Documents/chatR-GSOC/venv/bin/python",
         paste0(Sys.getenv("HOME"), "/Documents/chatR-GSOC/venv/bin/python"),
-        "python3",
-        "python"
+        # System Python paths for GitHub users
+        "python3",  # Most common
+        "python",
+        paste0(Sys.getenv("VIRTUAL_ENV"), "/bin/python"),  # Active venv
+        paste0(Sys.getenv("CONDA_PREFIX"), "/bin/python"),  # Active conda
+        paste0(Sys.getenv("HOME"), "/anaconda3/bin/python"),  # Anaconda
+        paste0(Sys.getenv("HOME"), "/miniconda3/bin/python"),  # Miniconda
+        # Common GitHub clone locations
+        paste0(Sys.getenv("HOME"), "/chatR-GSOC/venv/bin/python"),
+        paste0(Sys.getenv("HOME"), "/projects/chatR-GSOC/venv/bin/python")
       )
       
       for (python_path in python_paths) {
@@ -450,6 +472,7 @@ chatr_serve <- function(port = 8001, host = "localhost") {
     return(FALSE)
   })
 }
+
 
 
 
